@@ -1,0 +1,174 @@
+---
+title: "Covid Analysis"
+author: "Trae Smith"
+date: "2025-07-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(warning = FALSE)
+
+```
+
+
+
+```{r datainput, inlcude=FALSE}
+
+global_covid_data<-readxl::read_xlsx("owid-covid-data.xlsx")
+```
+
+Since this shows the global covid data, we can compare different countries to each other. For the mini project, I will focus on Canada, United States, and Mexico.
+```{r filtered, echo=FALSE}
+NA_covid_data<- global_covid_data %>%
+  filter(location %in% c("Canada", "United States", "Mexico"))
+
+```
+
+For a general understanding of how Covid-19 affected these 3 countries, we can plot the increase across the months
+
+
+```{r plot_covid_cases, echo=FALSE}
+
+  ggplot(NA_covid_data, aes(x = date, y = new_cases_smoothed_per_million, color = location)) +
+  geom_line() +
+  labs(title = "Covid-19 Cases per Million People",
+       x = "Date",
+       y = "New Cases Smoothed per Million") +
+  theme_minimal()
+
+ggplot(NA_covid_data, aes(x = date, y = new_deaths_smoothed_per_million, color = location)) +
+  geom_line() +
+  labs(title = "Covid-19 Deaths per Million People",
+       x = "Date",
+       y = "New Deaths Smoothed per Million") +
+  theme_minimal()
+
+ggplot(NA_covid_data, aes(x = date, y = new_vaccinations_smoothed_per_million, color = location)) +
+  geom_line() +
+  labs(title = "Covid-19 Vaccinations per Million People",
+       x = "Date",
+       y = "New Vaccinations Smoothed per Million") +
+  theme_minimal()
+
+```
+
+As we can see, the United States had the highest number of cases per million people, being about double of the countries afterward, Canada. Mexico have the smallest peak across the 3 countries. The peak in cases for all three countries occurred around Early 2022, which aligns with the global trend of Covid-19 cases. The deaths compared to each other is another story. Mexico have the largest amount of deaths at one point, which is surprising given that it had the lowest number of cases. The United States had the second highest number of deaths, while Canada had the lowest number of deaths. However, USA has consistently increased compared to Mexico, who only had a spike in deaths at one point and smaller ones 3 times. You can see that Canada had the highest number of vaccinations in the middle of 2021. Mexico followed with 2 quick peaks at the end of 2021 and USA having the lowest in the middle of 2021 as well. 
+
+
+To further analyze the impact of Covid-19, we can look at the trends for each countries across each month. Starting at the North, Canada.
+
+
+```{r canada_cases, echo=FALSE}
+
+canada_covid_data <- NA_covid_data %>%
+  filter(location == "Canada")
+canada_per_month<-canada_covid_data %>% group_by(month = lubridate::floor_date(date, "month"))%>%
+    summarize(total_cases = max(total_cases, na.rm=TRUE),
+    total_deaths = max(total_deaths, na.rm=TRUE),
+    population=max(population, na.rm=TRUE),
+    total_vaccinations=max(total_vaccinations,na.rm=TRUE)) %>%
+    mutate(case_per_million = (total_cases / population) * 1e6,
+            death_per_million = (total_deaths / population) * 1e6,
+            vaccination_per_million = (total_vaccinations / population) * 1e6
+        
+      )
+    
+
+
+matplot(canada_per_month$month,cbind(canada_per_month$case_per_million, ... = canada_per_month$death_per_million, canada_per_month$vaccination_per_million), type = "l", lty = 1, col = c("green", "red", "blue"),
+        xlab = "Month", ylab = "Count",
+        main = "Covid-19 Trends in Canada")
+
+
+
+matplot(canada_per_month$month,cbind(canada_per_month$case_per_million, ... = canada_per_month$death_per_million), type = "l", lty = 1, col = c("green", "red"),
+        xlab = "Month", ylab = "Count",
+        main = "Covid-19 Trends in Canada")
+
+
+
+
+```
+
+We can see the large amount of vaccinations that occurred in Canada (signified by blue), which shows that many people have taken it amidst the pandemic. Also, around early 2022, we can also see a small spike in cases. 
+
+Compared to both vaccinations and the number of cases, the deaths (red) are significantly lower, which shows that while many people have contracted the virus, the death rate is not as high.
+
+
+
+Now for United States:
+
+
+```{r USA_cases, echo=FALSE}
+
+USA_covid_data <- NA_covid_data %>%
+  filter(location == "United States")
+USA_per_month<-USA_covid_data %>% group_by(month = lubridate::floor_date(date, "month"))%>%
+    summarize(total_cases = max(total_cases, na.rm=TRUE),
+    total_deaths = max(total_deaths,na.rm=TRUE),
+    population=max(population,na.rm=TRUE),
+    total_vaccinations=max(total_vaccinations, na.rm=TRUE)) %>%
+    mutate(case_per_million = (total_cases / population) * 1e6,
+            death_per_million = (total_deaths / population) * 1e6,
+            vaccination_per_million = (total_vaccinations / population) * 1e6
+        
+      )
+
+
+matplot(USA_per_month$month,cbind(USA_per_month$case_per_million, ... = USA_per_month$death_per_million, USA_per_month$vaccination_per_million), type = "l", lty = 1, col = c("green", "red", "blue"),
+        xlab = "Month", ylab = "Count",
+        main = "Covid-19 Trends in USA")
+
+
+
+matplot(USA_per_month$month,cbind(USA_per_month$case_per_million, ... = USA_per_month$death_per_million), type = "l", lty = 1, col = c("green", "red"),
+        xlab = "Month", ylab = "Count",
+        main = "Covid-19 Trends in USA")
+
+
+
+
+```
+
+Compared to its neighbor to the north, the United States has a significantly higher number of cases and deaths. The vaccination rate is also lower than Canada, which shows that the country was not able to handle the pandemic as well as Canada. The peak in cases for the United States also occurred around early 2022, which aligns with the global trend of Covid-19 cases. 
+
+Finally, we can look at Mexico:
+
+
+
+
+```{r Mexico_cases, echo=FALSE}
+
+Mexico_covid_data <- NA_covid_data %>%
+  filter(location == "Mexico")
+Mexico_per_month<-Mexico_covid_data %>% group_by(month = lubridate::floor_date(date, "month"))%>%
+    summarize(total_cases = max(total_cases, na.rm=TRUE),
+    total_deaths = max(total_deaths, na.rm=TRUE),
+    total_vaccinations=max(total_vaccinations, na.rm=TRUE),
+    population=max(population, na.rm=TRUE)) %>%
+    mutate(case_per_million = (total_cases / population) * 1e6,
+            death_per_million = (total_deaths / population) * 1e6,
+            vaccination_per_million = (total_vaccinations / population) * 1e6
+        
+      )
+
+
+matplot(Mexico_per_month$month,cbind(Mexico_per_month$case_per_million, ... = Mexico_per_month$death_per_million, Mexico_per_month$vaccination_per_million), type = "l", lty = 1, col = c("green", "red", "blue"),
+        xlab = "Month", ylab = "Count",
+        main = "Covid-19 Trends in Mexico")
+
+matplot(Mexico_per_month$month,cbind(Mexico_per_month$case_per_million, ... = Mexico_per_month$death_per_million), type = "l", lty = 1, col = c("green", "red"),
+        xlab = "Month", ylab = "Count",
+        main = "Covid-19 average Cases vs Deaths Trends in Mexico")
+
+
+
+
+```
+
+Mexico has the lowest number of cases and deaths compared to the other two countries, which shows that the country was able to handle the pandemic better than the other two. However, it also has the lowest number of vaccinations. This shows that while the country was able to handle the pandemic better, the vaccination was not the only main factor to consider. 
+
+
+
+Looking at the overall trend, we can tell that Canada have the least amount of deaths, and the most amount of vaccinations. The United States of America had the most cases and deaths as well as the least amount of vaccinations. However, Mexico showed that while they had the least cases, the deaths peaked the most. This showed that the vaccinations didn't helped the cases, but rather the deaths (after the deaths which occurred in Mexico). 
