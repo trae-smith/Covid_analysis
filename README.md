@@ -1,2 +1,2 @@
 # Covid_analysis
-A mini project I made to analyze the cases, deaths, and vaccinations in NA. 
+A mini project I made to analyze the cases, deaths, and vaccinations in NA. The dataset used was "Our World in Data Covid Dataset" (https://covid.ourworldindata.org/data/owid-covid-data.csv). I wanted to know the trends specifically for the vaccinations across NA, as well as the amount of cases and deaths compared to each country's population. I also wanted to maintain my skills in R. 
